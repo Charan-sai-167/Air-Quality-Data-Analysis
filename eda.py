@@ -16,7 +16,167 @@ def app():
     # --------------------------------------------------
     # Page Title
     # --------------------------------------------------
+    st.title("📊 # -*- coding: utf-8 -*-
+"""
+EDA Page – India Air Quality Analysis (2015–2020)
+"""
+
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+
+def app():
+
+    # --------------------------------------------------
+    # Page Title
+    # --------------------------------------------------
     st.title("📊 Exploratory Data Analysis (EDA)")
+    st.markdown(
+        """
+        This section explores the **structure, distribution, and patterns**
+        in India’s air quality data from **2015 to 2020**.
+        """
+    )
+
+    # --------------------------------------------------
+    # Load Data
+    # --------------------------------------------------
+    @st.cache_data
+    def load_data():
+        return pd.read_csv("preprocessed_aqi_dataset_20251217.csv")
+
+    df = load_data()
+    df["Date"] = pd.to_datetime(df["Date"])
+
+    # --------------------------------------------------
+    # AQI Distribution
+    # --------------------------------------------------
+    st.subheader("🔹 AQI Distribution")
+
+    fig_aqi_dist = px.histogram(
+        df,
+        x="AQI",
+        nbins=50,
+        title="Distribution of AQI Values",
+        labels={"AQI": "Air Quality Index"}
+    )
+    st.plotly_chart(fig_aqi_dist, use_container_width=True)
+
+    st.write(
+        "👉 This chart shows how AQI values are distributed. "
+        "A higher concentration toward the right indicates frequent poor air quality days."
+    )
+
+    # --------------------------------------------------
+    # AQI Trend Over Time
+    # --------------------------------------------------
+    st.subheader("🔹 AQI Trend Over Time")
+
+    daily_aqi = df.groupby("Date")["AQI"].mean().reset_index()
+
+    fig_trend = px.line(
+        daily_aqi,
+        x="Date",
+        y="AQI",
+        title="Average AQI Trend Over Time"
+    )
+    st.plotly_chart(fig_trend, use_container_width=True)
+
+    st.write(
+        "👉 This time-series plot highlights long-term trends "
+        "and seasonal variations in air quality."
+    )
+
+    # --------------------------------------------------
+    # City-wise AQI Comparison
+    # --------------------------------------------------
+    st.subheader("🔹 City-wise AQI Comparison")
+
+    city_aqi = (
+        df.groupby("City")["AQI"]
+        .mean()
+        .sort_values(ascending=False)
+        .reset_index()
+    )
+
+    fig_city = px.bar(
+        city_aqi.head(15),
+        x="City",
+        y="AQI",
+        title="Top 15 Cities by Average AQI"
+    )
+    st.plotly_chart(fig_city, use_container_width=True)
+
+    st.write(
+        "👉 This chart compares average AQI levels across cities, "
+        "highlighting the most polluted urban regions."
+    )
+
+    # --------------------------------------------------
+    # AQI Category Distribution
+    # --------------------------------------------------
+    st.subheader("🔹 AQI Category Distribution")
+
+    fig_bucket = px.pie(
+        df,
+        names="AQI_Bucket",
+        title="Distribution of AQI Categories",
+        hole=0.4
+    )
+    st.plotly_chart(fig_bucket, use_container_width=True)
+
+    st.write(
+        "👉 This chart shows how frequently air quality falls into "
+        "different AQI categories such as Good, Moderate, and Poor."
+    )
+
+    # --------------------------------------------------
+    # PM2.5 vs PM10 Relationship (FIXED)
+    # --------------------------------------------------
+    st.subheader("🔹 PM2.5 vs PM10 Relationship")
+
+    fig_pm = px.scatter(
+        df,
+        x="PM2.5",
+        y="PM10",
+        opacity=0.4,
+        title="PM2.5 vs PM10 Relationship"
+    )
+    st.plotly_chart(fig_pm, use_container_width=True)
+
+    st.write(
+        "👉 This scatter plot shows a strong positive relationship between PM2.5 and PM10. "
+        "Higher PM2.5 concentrations generally correspond to higher PM10 levels."
+    )
+
+    # --------------------------------------------------
+    # Monthly AQI Pattern
+    # --------------------------------------------------
+    st.subheader("🔹 Monthly Pollution Pattern")
+
+    df["Month"] = df["Date"].dt.month_name()
+    monthly_aqi = df.groupby("Month")["AQI"].mean().reset_index()
+
+    month_order = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ]
+
+    fig_month = px.bar(
+        monthly_aqi,
+        x="Month",
+        y="AQI",
+        category_orders={"Month": month_order},
+        title="Average AQI by Month"
+    )
+    st.plotly_chart(fig_month, use_container_width=True)
+
+    st.write(
+        "👉 AQI levels are typically higher during winter months and "
+        "lower during the monsoon season."
+    )
+ Data Analysis (EDA)")
     st.markdown(
         """
         This section explores the **structure, distribution, and patterns**
